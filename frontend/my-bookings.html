@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Bookings - LETS GO Bus Service</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .bookings-container {
+            max-width: 900px;
+            margin: 2rem auto;
+            padding: 2rem;
+        }
+
+        .bookings-container h2 {
+            text-align: center;
+            margin-bottom: 0.5rem;
+            color: #333;
+        }
+
+        .bookings-subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 2rem;
+            font-size: 0.95rem;
+        }
+
+        .booking-card {
+            background: #fff;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1.25rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            border-left: 4px solid #007bff;
+        }
+
+        .booking-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
+        }
+
+        .booking-card.status-confirmed {
+            border-left-color: #28a745;
+        }
+
+        .booking-card.status-cancelled {
+            border-left-color: #dc3545;
+        }
+
+        .booking-card.status-pending {
+            border-left-color: #ffc107;
+        }
+
+        .booking-info {
+            flex: 1;
+        }
+
+        .booking-info h3 {
+            margin: 0 0 0.75rem 0;
+            color: #007bff;
+            font-size: 1.2rem;
+        }
+
+        .booking-details {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.5rem;
+        }
+
+        .booking-detail-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        .booking-detail-item .label {
+            color: #888;
+            font-weight: 500;
+        }
+
+        .booking-detail-item .value {
+            color: #333;
+            font-weight: 600;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .status-badge.confirmed {
+            background-color: #d4edda;
+            color: #155724;
+        }
+
+        .status-badge.cancelled {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+
+        .status-badge.pending {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+
+        .booking-actions {
+            display: flex;
+            gap: 0.75rem;
+            margin-left: 1.5rem;
+        }
+
+        .pdf-btn {
+            background-color: #dc3545;
+            color: #fff;
+            padding: 0.7rem 1rem;
+            border-radius: 8px;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            border: none;
+            cursor: pointer;
+            transition: background 0.3s, transform 0.2s;
+        }
+
+        .pdf-btn:hover {
+            background-color: #c82333;
+            transform: translateY(-2px);
+        }
+
+        .cancel-btn {
+            background-color: #6c757d;
+            color: white;
+            border: none;
+            padding: 0.7rem 1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: background 0.3s, transform 0.2s;
+        }
+
+        .cancel-btn:hover {
+            background-color: #5a6268;
+            transform: translateY(-2px);
+        }
+
+        .no-bookings {
+            text-align: center;
+            padding: 4rem 2rem;
+            background: #fff;
+            border-radius: 12px;
+            color: #888;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+        }
+
+        .no-bookings-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+        }
+
+        .no-bookings p {
+            margin: 0.5rem 0;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .bookings-container {
+                padding: 1rem;
+                margin: 1rem auto;
+            }
+
+            .booking-card {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1rem;
+            }
+
+            .booking-details {
+                grid-template-columns: 1fr;
+            }
+
+            .booking-actions {
+                width: 100%;
+                margin-left: 0;
+            }
+
+            .booking-actions button {
+                flex: 1;
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1>
+                <svg width="40" height="40" viewBox="0 0 24 24" fill="white" xmlns="http://www.w3.org/2000/svg" style="vertical-align: middle; margin-right: 12px;">
+                    <path d="M20 12h-1V8h1v4zm-13 0h1V8H7v4zm13 3.5V18c0 .83-.67 1.5-1.5 1.5h-1c-.83 0-1.5-.67-1.5-1.5v-.5H8v.5c0 .83-.67 1.5-1.5 1.5h-1C4.67 19.5 4 18.83 4 18v-2.5c0-.83.67-1.5 1.5-1.5h13c.83 0 1.5.67 1.5 1.5zM18 14H6c-1.1 0-2 .9-2 2v4c0 1.1.9 2 2 2h1v1c0 .55.45 1 1 1s1-.45 1-1v-1h8v1c0 .55.45 1 1 1s1-.45 1-1v-1h1c1.1 0 2-.9 2-2v-4c0-1.1-.9-2-2-2zM17 6H7c-1.1 0-2 .9-2 2v5h14V8c0-1.1-.9-2-2-2zm-1 2H8v4h8V8z"/>
+                    <circle cx="7.5" cy="17.5" r="1.5" fill="white"/>
+                    <circle cx="16.5" cy="17.5" r="1.5" fill="white"/>
+                </svg>
+                LETS GO
+            </h1>
+            <nav>
+                <ul>
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="admin.html">Admin</a></li>
+                    <li><a href="my-bookings.html">My Booking</a></li>
+                    <li class="profile-dropdown">
+                        <input type="checkbox" id="profile-toggle" class="dropdown-toggle">
+                        <label for="profile-toggle" class="dropdown-label">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+                            </svg>
+                            Profile
+                        </label>
+                        <div class="dropdown-menu">
+                            <div class="profile-card">
+                                <div class="profile-avatar" id="profile-avatar">U</div>
+                                <h4 class="user-name" id="profile-name">User</h4>
+                                <p class="user-email" id="profile-email">user@example.com</p>
+                            </div>
+                        </div>
+                    </li>
+                    <li><button id="nav-logout-btn" class="logout-btn">Logout</button></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main class="bookings-container">
+        <h2>My Bookings</h2>
+        <p class="bookings-subtitle">All your bookings</p>
+        <div id="bookings-list">
+            <p style="text-align: center; padding: 2rem;">Loading bookings...</p>
+        </div>
+        <div style="text-align: center; margin-top: 2rem;">
+            <a href="index.html" class="btn" style="background-color: #007bff; border: none; padding: 1rem 2rem; border-radius: 8px; text-decoration: none; display: inline-block;">Book New Ticket</a>
+        </div>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2024 Bus Ticket Management System. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="api.js"></script>
+    <script>
+        const MAX_DISPLAY_BOOKINGS = 100;
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            const bookingsListEl = document.getElementById('bookings-list');
+
+            try {
+                const data = await BookingsAPI.getMyBookings();
+                let allBookings = data.bookings || [];
+
+                if (allBookings.length === 0) {
+                    bookingsListEl.innerHTML = `
+                        <div class="no-bookings">
+                            <div class="no-bookings-icon">📭</div>
+                            <p>No bookings yet</p>
+                            <p style="margin-top: 0.5rem; color: #aaa;">Book your first ticket to see it here!</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                // Sort bookings by date (most recent first)
+                allBookings.sort((a, b) => {
+                    return new Date(b.travel_date) - new Date(a.travel_date);
+                });
+
+                // Show all bookings
+                const recentBookings = allBookings.slice(0, MAX_DISPLAY_BOOKINGS);
+                renderBookings(recentBookings);
+
+            } catch (error) {
+                bookingsListEl.innerHTML = `<p style="text-align: center; color: #dc3545; padding: 2rem;">Error loading bookings: ${error.message}</p>`;
+            }
+        });
+
+        function renderBookings(bookings) {
+            const bookingsListEl = document.getElementById('bookings-list');
+
+            bookingsListEl.innerHTML = bookings.map(booking => {
+                const seatNumbers = booking.seats.map(s => s.seat_number).join(', ');
+                const travelDate = new Date(booking.travel_date).toLocaleDateString('en-GB', {
+                    day: 'numeric', month: 'long', year: 'numeric'
+                });
+                const departureTime = booking.bus.departure_time || 'N/A';
+                const statusClass = booking.status.toLowerCase();
+                const statusLabel = booking.status.charAt(0).toUpperCase() + booking.status.slice(1).toLowerCase();
+
+                return `
+                    <div class="booking-card status-${statusClass}">
+                        <div class="booking-info">
+                            <h3>${booking.bus.route.start_location} &rarr; ${booking.bus.route.destination}</h3>
+                            <div class="booking-details">
+                                <div class="booking-detail-item">
+                                    <span class="label">📅 Date:</span>
+                                    <span class="value">${travelDate}</span>
+                                </div>
+                                <div class="booking-detail-item">
+                                    <span class="label">🕐 Time:</span>
+                                    <span class="value">${departureTime}</span>
+                                </div>
+                                <div class="booking-detail-item">
+                                    <span class="label">👤 Passenger:</span>
+                                    <span class="value">${booking.passenger_name || 'N/A'}</span>
+                                </div>
+                                <div class="booking-detail-item">
+                                    <span class="label">💺 Seats:</span>
+                                    <span class="value">${seatNumbers}</span>
+                                </div>
+                                <div class="booking-detail-item">
+                                    <span class="label">🎫 Ref:</span>
+                                    <span class="value">${booking.booking_reference}</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="booking-actions">
+                            <span class="status-badge ${statusClass}">${statusLabel}</span>
+                            ${booking.status === 'confirmed' ? `
+                                <button onclick="downloadTicket(${booking.id})" class="pdf-btn">
+                                    <svg width="18" height="18" fill="currentColor" viewBox="0 0 24 24"><path d="M12 16l-5-5h3v-9h4v9h3l-5 5zm-12 4h24v2h-24v-2z"/></svg>
+                                    PDF
+                                </button>
+                            ` : ''}
+                            ${booking.status === 'pending' ? `
+                                <button onclick="cancelBooking(${booking.id})" class="cancel-btn">Cancel</button>
+                            ` : ''}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        async function downloadTicket(bookingId) {
+            try {
+                await PaymentAPI.downloadTicket(bookingId);
+            } catch (error) {
+                alert('Error downloading ticket: ' + error.message);
+            }
+        }
+
+        async function cancelBooking(bookingId) {
+            if (!confirm('Are you sure you want to cancel this booking?')) {
+                return;
+            }
+
+            try {
+                await BookingsAPI.cancelBooking(bookingId);
+                alert('Booking cancelled successfully');
+                location.reload();
+            } catch (error) {
+                alert('Error cancelling booking: ' + error.message);
+            }
+        }
+
+        // Logout functionality
+        document.getElementById('nav-logout-btn').addEventListener('click', () => {
+            AuthAPI.logout();
+        });
+
+        // Update profile card with user info
+        if (isAuthenticated()) {
+            const user = getCurrentUser();
+            if (user) {
+                const avatarEl = document.getElementById('profile-avatar');
+                const nameEl = document.getElementById('profile-name');
+                const emailEl = document.getElementById('profile-email');
+                
+                if (avatarEl) {
+                    avatarEl.textContent = user.full_name ? user.full_name.charAt(0).toUpperCase() : 'U';
+                }
+                if (nameEl) {
+                    nameEl.textContent = user.full_name || 'User';
+                }
+                if (emailEl) {
+                    emailEl.textContent = user.email || 'user@example.com';
+                }
+            }
+        }
+    </script>
+
+    <script src="chatbot.js"></script>
+</body>
+</html>

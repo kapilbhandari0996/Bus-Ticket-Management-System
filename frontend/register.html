@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register - Bus Ticket Management System</title>
+    <link rel="stylesheet" href="auth-style.css">
+    <style>
+        .error-message {
+            color: #dc3545;
+            font-size: 0.9rem;
+            margin-top: 0.5rem;
+            display: none;
+        }
+        .loading {
+            opacity: 0.6;
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="auth-container">
+        <div class="auth-box">
+            <h2>Register</h2>
+            <form id="register-form">
+                <input type="text" id="full_name" placeholder="Full Name" required>
+                <input type="email" id="email" placeholder="Email" required>
+                <input type="password" id="password" placeholder="Password" required>
+                <input type="tel" id="phone" placeholder="Phone Number (Optional)">
+                <p class="error-message" id="error-message"></p>
+                <button type="submit" id="register-btn">Register</button>
+            </form>
+            <p>Already have an account? <a href="login.html">Login here</a></p>
+        </div>
+    </div>
+
+    <script src="api.js"></script>
+    <script>
+        document.getElementById('register-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const fullName = document.getElementById('full_name').value;
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const phone = document.getElementById('phone').value;
+            const errorEl = document.getElementById('error-message');
+            const btn = document.getElementById('register-btn');
+            
+            errorEl.style.display = 'none';
+            btn.classList.add('loading');
+            btn.textContent = 'Registering...';
+            
+            try {
+                const response = await AuthAPI.register(fullName, email, password, phone);
+                
+                // Store auth token and user info
+                localStorage.setItem('authToken', response.token);
+                updateCurrentUser(response.user);
+                
+                // Redirect to home page
+                window.location.href = 'index.html';
+            } catch (error) {
+                errorEl.textContent = error.message;
+                errorEl.style.display = 'block';
+                btn.classList.remove('loading');
+                btn.textContent = 'Register';
+            }
+        });
+
+        // Redirect if already logged in
+        if (isAuthenticated()) {
+            window.location.href = 'index.html';
+        }
+    </script>
+</body>
+</html>

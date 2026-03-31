@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bus Ticket Management System</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <input type="checkbox" id="modal-toggle" class="modal-toggle">
+    <header>
+        <div class="container">
+            <h1>
+                <svg width="40" height="40" viewBox="0 0 24 24" fill="white" xmlns="http://www.w3.org/2000/svg" style="vertical-align: middle; margin-right: 12px;">
+                    <path d="M20 12h-1V8h1v4zm-13 0h1V8H7v4zm13 3.5V18c0 .83-.67 1.5-1.5 1.5h-1c-.83 0-1.5-.67-1.5-1.5v-.5H8v.5c0 .83-.67 1.5-1.5 1.5h-1C4.67 19.5 4 18.83 4 18v-2.5c0-.83.67-1.5 1.5-1.5h13c.83 0 1.5.67 1.5 1.5zM18 14H6c-1.1 0-2 .9-2 2v4c0 1.1.9 2 2 2h1v1c0 .55.45 1 1 1s1-.45 1-1v-1h8v1c0 .55.45 1 1 1s1-.45 1-1v-1h1c1.1 0 2-.9 2-2v-4c0-1.1-.9-2-2-2zM17 6H7c-1.1 0-2 .9-2 2v5h14V8c0-1.1-.9-2-2-2zm-1 2H8v4h8V8z"/>
+                    <circle cx="7.5" cy="17.5" r="1.5" fill="white"/>
+                    <circle cx="16.5" cy="17.5" r="1.5" fill="white"/>
+                </svg>
+                LETS GO
+            </h1>
+            <nav>
+                <ul>
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="admin.html">Admin</a></li>
+                    <li><a href="my-bookings.html">My Booking</a></li>
+                    <li class="profile-dropdown">
+                        <input type="checkbox" id="profile-toggle" class="dropdown-toggle">
+                        <label for="profile-toggle" class="dropdown-label">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+                            </svg>
+                            Profile
+                        </label>
+                        <div class="dropdown-menu">
+                            <div class="profile-card">
+                                <div class="profile-avatar" id="profile-avatar">U</div>
+                                <h4 class="user-name" id="profile-name">User</h4>
+                                <p class="user-email" id="profile-email">user@example.com</p>
+                            </div>
+                        </div>
+                    </li>
+                    <li><button id="nav-logout-btn" class="logout-btn">Logout</button></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <section class="welcome-section">
+            <div class="container">
+                <h1>WELCOME TO LETS GO BUS SERVICE</h1>
+                <p>Let's explore Pune together!</p>
+            </div>
+        </section>
+
+        <section class="bus-search">
+            <div class="container search-layout">
+                <aside class="filter-sidebar">
+                    <h3>Filter Buses</h3>
+                    <div class="filter-group">
+                        <p>Bus Type</p>
+                        <label><input type="checkbox" name="busType" value="AC"> AC Bus</label>
+                        <label><input type="checkbox" name="busType" value="Non-AC"> Non-AC Bus</label>
+                    </div>
+                    <div class="filter-group">
+                        <p>Cost Range</p>
+                        <label><input type="checkbox" name="priceRange" value="low" data-max="15"> Under ₹ 15</label>
+                        <label><input type="checkbox" name="priceRange" value="mid" data-min="15" data-max="25"> ₹ 15 - ₹ 25</label>
+                        <label><input type="checkbox" name="priceRange" value="high" data-min="25"> Over ₹ 25</label>
+                    </div>
+                </aside>
+
+                <div class="search-main">
+                    <h2>Search for Buses</h2>
+                    <form id="search-form">
+                        <select id="startLocation" required>
+                            <option value="" disabled selected>Select Location</option>
+                        </select>
+                        <select id="destinationLocation" required>
+                            <option value="" disabled selected>Select Location</option>
+                        </select>
+                        <input type="date" id="travel-date" required>
+                        <button type="submit">Search</button>
+                    </form>
+                </div>
+            </div>
+        </section>
+
+        <section class="bus-listings">
+            <div class="container">
+                <h2>Available Buses</h2>
+                <div id="route-info" style="margin-bottom: 1rem; padding: 1rem; background: #eef6ff; border-radius: 8px; display: none;"></div>
+                <div id="bus-list" class="bus-list">
+                    <p style="text-align: center; color: #666;">Search for buses to see available options</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="booking-form" id="book-now">
+            <div class="container">
+                <h2>Book Your Ticket</h2>
+                <form id="booking-form">
+                    <input type="hidden" id="selected-bus-id">
+                    <input type="text" id="passenger-name" placeholder="Passenger Name" required>
+                    <input type="email" id="passenger-email" placeholder="Email" required>
+                    <input type="tel" id="passenger-phone" placeholder="Phone Number" required>
+                    <button type="submit" class="btn">Next: Select Seat</button>
+                </form>
+            </div>
+        </section>
+
+        <div id="payment-modal" class="modal">
+            <div class="modal-content">
+                <label for="modal-toggle" class="close-button">&times;</label>
+                <h2>Scan QR Code to Pay</h2>
+                <div class="qr-code">
+                    <img id="qr-code-img" src="" alt="QR Code">
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="api.js"></script>
+    <script>
+        let selectedBus = null;
+        let selectedSeats = [];
+
+        // Load locations on page load
+        document.addEventListener('DOMContentLoaded', async () => {
+            try {
+                const locationsData = await BusesAPI.getLocations();
+                const startSelect = document.getElementById('startLocation');
+                const destSelect = document.getElementById('destinationLocation');
+                
+                locationsData.locations.forEach(location => {
+                    startSelect.add(new Option(location, location));
+                    destSelect.add(new Option(location, location));
+                });
+
+                // Set minimum date to today
+                const today = new Date().toISOString().split('T')[0];
+                document.getElementById('travel-date').min = today;
+            } catch (error) {
+                console.error('Failed to load locations:', error);
+            }
+        });
+
+        // Search form submission
+        document.getElementById('search-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const start = document.getElementById('startLocation').value;
+            const destination = document.getElementById('destinationLocation').value;
+            const date = document.getElementById('travel-date').value;
+            
+            if (start === destination) {
+                alert('Start and destination locations cannot be the same');
+                return;
+            }
+
+            const busListEl = document.getElementById('bus-list');
+            busListEl.innerHTML = '<p style="text-align: center;">Loading...</p>';
+
+            // Display selected route info
+            const routeInfoEl = document.getElementById('route-info');
+            if (routeInfoEl) {
+                routeInfoEl.innerHTML = `<p><strong>Searching buses from:</strong> ${start} → ${destination} | <strong>Date:</strong> ${new Date(date).toLocaleDateString('en-GB', {day: 'numeric', month: 'long', year: 'numeric'})}</p>`;
+            }
+
+            try {
+                const data = await BusesAPI.search({ start, destination, date });
+                
+                const routeInfoEl = document.getElementById('route-info');
+                
+                if (data.buses.length === 0) {
+                    if (routeInfoEl) routeInfoEl.style.display = 'none';
+                    busListEl.innerHTML = '<p style="text-align: center; color: #666;">No buses found for this route</p>';
+                    return;
+                }
+
+                if (routeInfoEl) {
+                    routeInfoEl.style.display = 'block';
+                    routeInfoEl.innerHTML = `<p><strong>Route:</strong> ${start} → ${destination} | <strong>Date:</strong> ${new Date(date).toLocaleDateString('en-GB', {day: 'numeric', month: 'long', year: 'numeric'})} | <strong>${data.count} bus(es) available</strong></p>`;
+                }
+
+                busListEl.innerHTML = data.buses.map(bus => `
+                    <div class="bus-item">
+                        <div class="bus-details">
+                            <h3>${bus.bus_name} (${bus.bus_type})</h3>
+                            <p><strong>Route:</strong> ${bus.route.start_location} → ${bus.route.destination}</p>
+                            <p><strong>Departure:</strong> ${bus.departure_time}</p>
+                            <p><strong>Arrival:</strong> ${bus.arrival_time}</p>
+                            <p><strong>Duration:</strong> ${bus.route.estimated_duration || 'N/A'}</p>
+                            <p><strong>Distance:</strong> ${bus.distance_km || bus.route.distance_km || 'N/A'} km</p>
+                        </div>
+                        <div class="bus-fare">
+                            <p>Fare: ₹ ${bus.fare_per_seat.toFixed(2)} ${bus.price_source === 'distance_based' ? '<span style="color: #28a745; font-size: 0.8em;">(Distance-based)</span>' : ''}</p>
+                            <button class="btn" onclick="selectBus(${bus.id}, '${bus.bus_name}', ${bus.fare_per_seat})">Book Now</button>
+                        </div>
+                    </div>
+                `).join('');
+
+                // Scroll to bus listings
+                document.querySelector('.bus-listings').scrollIntoView({ behavior: 'smooth' });
+            } catch (error) {
+                busListEl.innerHTML = `<p style="text-align: center; color: #dc3545;">Error: ${error.message}</p>`;
+            }
+        });
+
+        // Select bus for booking
+        function selectBus(busId, busName, fare) {
+            selectedBus = { id: busId, name: busName, fare: fare };
+            document.getElementById('selected-bus-id').value = busId;
+            
+            // Prefill passenger info if logged in
+            const user = getCurrentUser();
+            if (user) {
+                document.getElementById('passenger-name').value = user.full_name;
+                document.getElementById('passenger-email').value = user.email;
+            }
+            
+            document.getElementById('book-now').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // Booking form submission
+        document.getElementById('booking-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            // Note: Authentication check removed for testing
+            // Uncomment below lines for production
+            /*
+            if (!requireAuth()) {
+                alert('Please login to book a ticket');
+                window.location.href = 'login.html';
+                return;
+            }
+            */
+
+            const busId = parseInt(document.getElementById('selected-bus-id').value);
+            const passengerName = document.getElementById('passenger-name').value;
+            const passengerEmail = document.getElementById('passenger-email').value;
+            const passengerPhone = document.getElementById('passenger-phone').value;
+            const travelDate = document.getElementById('travel-date').value;
+
+            if (!busId) {
+                alert('Please select a bus first');
+                return;
+            }
+
+            try {
+                // Store booking data in sessionStorage for seat selection page
+                sessionStorage.setItem('bookingData', JSON.stringify({
+                    bus_id: busId,
+                    travel_date: travelDate,
+                    passenger_name: passengerName,
+                    passenger_email: passengerEmail,
+                    passenger_phone: passengerPhone
+                }));
+
+                // Redirect to seat selection
+                window.location.href = 'seat-selection.html';
+            } catch (error) {
+                alert('Error: ' + error.message);
+            }
+        });
+
+        // Check authentication status and update UI
+        if (isAuthenticated()) {
+            const user = getCurrentUser();
+            if (user) {
+                // Update profile card
+                const avatarEl = document.getElementById('profile-avatar');
+                const nameEl = document.getElementById('profile-name');
+                const emailEl = document.getElementById('profile-email');
+                
+                if (avatarEl) {
+                    avatarEl.textContent = user.full_name ? user.full_name.charAt(0).toUpperCase() : 'U';
+                }
+                if (nameEl) {
+                    nameEl.textContent = user.full_name || 'User';
+                }
+                if (emailEl) {
+                    emailEl.textContent = user.email || 'user@example.com';
+                }
+            }
+        }
+
+        // Logout functionality
+        document.getElementById('nav-logout-btn').addEventListener('click', () => {
+            AuthAPI.logout();
+        });
+    </script>
+
+    <script src="chatbot.js"></script>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2024 Bus Ticket Management System. All rights reserved.</p>
+        </div>
+    </footer>
+</body>
+</html>

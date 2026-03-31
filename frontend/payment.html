@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment - Bus Ticket Management System</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .payment-container {
+            max-width: 500px;
+            margin: 3rem auto;
+            padding: 2.5rem;
+            background: #fff;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.15);
+            text-align: center;
+        }
+        .qr-section {
+            background: #f8f9fa;
+            padding: 2rem;
+            border-radius: 12px;
+            margin: 2rem 0;
+            border: 2px dashed #007bff;
+        }
+        .qr-section img {
+            width: 250px;
+            height: 250px;
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+        }
+        .upi-details {
+            margin-top: 1.5rem;
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #333;
+        }
+        .upi-logo {
+            width: 80px;
+            margin-bottom: 1rem;
+        }
+        .payment-methods {
+            display: flex;
+            justify-content: center;
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        .payment-method {
+            padding: 1rem 1.5rem;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .payment-method.active {
+            border-color: #007bff;
+            background: #eef6ff;
+        }
+        .confirm-btn {
+            width: 100%;
+            padding: 1.2rem;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        .confirm-btn:hover {
+            background-color: #218838;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1>
+                <svg width="40" height="40" viewBox="0 0 24 24" fill="white" xmlns="http://www.w3.org/2000/svg" style="vertical-align: middle; margin-right: 12px;">
+                    <path d="M20 12h-1V8h1v4zm-13 0h1V8H7v4zm13 3.5V18c0 .83-.67 1.5-1.5 1.5h-1c-.83 0-1.5-.67-1.5-1.5v-.5H8v.5c0 .83-.67 1.5-1.5 1.5h-1C4.67 19.5 4 18.83 4 18v-2.5c0-.83.67-1.5 1.5-1.5h13c.83 0 1.5.67 1.5 1.5zM18 14H6c-1.1 0-2 .9-2 2v4c0 1.1.9 2 2 2h1v1c0 .55.45 1 1 1s1-.45 1-1v-1h8v1c0 .55.45 1 1 1s1-.45 1-1v-1h1c1.1 0 2-.9 2-2v-4c0-1.1-.9-2-2-2zM17 6H7c-1.1 0-2 .9-2 2v5h14V8c0-1.1-.9-2-2-2zm-1 2H8v4h8V8z"/>
+                    <circle cx="7.5" cy="17.5" r="1.5" fill="white"/>
+                    <circle cx="16.5" cy="17.5" r="1.5" fill="white"/>
+                </svg>
+                LETS GO
+            </h1>
+            <nav>
+                <ul>
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="admin.html">Admin</a></li>
+                    <li><a href="my-bookings.html">My Booking</a></li>
+                    <li class="profile-dropdown">
+                        <input type="checkbox" id="profile-toggle" class="dropdown-toggle">
+                        <label for="profile-toggle" class="dropdown-label">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+                            </svg>
+                            Profile
+                        </label>
+                        <div class="dropdown-menu">
+                            <div class="profile-card">
+                                <div class="profile-avatar" id="profile-avatar">U</div>
+                                <h4 class="user-name" id="profile-name">User</h4>
+                                <p class="user-email" id="profile-email">user@example.com</p>
+                            </div>
+                        </div>
+                    </li>
+                    <li><button id="nav-logout-btn" class="logout-btn">Logout</button></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container">
+        <div class="payment-container">
+            <h2>Payment Details</h2>
+            <p>Total Amount: <span id="payment-amount">₹ 0.00</span></p>
+
+            <div class="payment-methods">
+                <div class="payment-method active">UPI / QR Scan</div>
+                <div class="payment-method">Card</div>
+            </div>
+
+            <div class="qr-section">
+                <img id="qr-code" src="" alt="UPI QR Code">
+                <div class="upi-details">Scan to Pay using UPI App</div>
+                <p style="margin-top: 0.5rem; color: #666;">UPI ID: <span id="upi-id">letsogobus@upi</span></p>
+            </div>
+
+            <button class="confirm-btn" id="confirm-payment-btn">Confirm Payment & Finish</button>
+        </div>
+    </main>
+
+    <script src="api.js"></script>
+    <script>
+        let bookingId = null;
+        let paymentData = null;
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            // Get booking ID from sessionStorage
+            bookingId = sessionStorage.getItem('bookingId');
+            const amount = sessionStorage.getItem('bookingAmount');
+
+            if (!bookingId) {
+                alert('No booking found. Please start a new booking.');
+                window.location.href = 'index.html';
+                return;
+            }
+
+            // Display amount
+            document.getElementById('payment-amount').textContent = `₹ ${parseFloat(amount || 0).toFixed(2)}`;
+
+            try {
+                // Initiate payment
+                const response = await PaymentAPI.initiate(bookingId, 'UPI');
+                paymentData = response;
+
+                // Generate QR code
+                const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(response.upi_url)}`;
+                document.getElementById('qr-code').src = qrCodeUrl;
+                document.getElementById('upi-id').textContent = response.upi_id;
+            } catch (error) {
+                alert('Error initiating payment: ' + error.message);
+                window.location.href = 'index.html';
+            }
+        });
+
+        document.getElementById('confirm-payment-btn').addEventListener('click', async () => {
+            const btn = document.getElementById('confirm-payment-btn');
+            btn.disabled = true;
+            btn.textContent = 'Processing...';
+
+            try {
+                // Generate a mock transaction ID (in real scenario, this would come from payment gateway)
+                const transactionId = `TXN${Date.now()}`;
+
+                // Confirm payment
+                const response = await PaymentAPI.confirm(bookingId, transactionId);
+
+                // Clear session storage
+                sessionStorage.removeItem('bookingId');
+                sessionStorage.removeItem('bookingAmount');
+                sessionStorage.removeItem('bookingData');
+
+                // Store booking reference and ID for ticket display
+                sessionStorage.setItem('ticketBookingId', bookingId);
+                sessionStorage.setItem('bookingReference', response.booking.booking_reference);
+
+                // Trigger custom event for admin dashboard to detect new booking
+                localStorage.setItem('newBookingEvent', JSON.stringify({
+                    bookingId: bookingId,
+                    timestamp: Date.now(),
+                    bookingReference: response.booking.booking_reference
+                }));
+
+                // Redirect to ticket page
+                window.location.href = 'ticket.html';
+            } catch (error) {
+                alert('Error confirming payment: ' + error.message);
+                btn.disabled = false;
+                btn.textContent = 'Confirm Payment & Finish';
+            }
+        });
+
+        // Logout functionality
+        document.getElementById('nav-logout-btn').addEventListener('click', () => {
+            AuthAPI.logout();
+        });
+
+        // Update profile card with user info
+        if (isAuthenticated()) {
+            const user = getCurrentUser();
+            if (user) {
+                const avatarEl = document.getElementById('profile-avatar');
+                const nameEl = document.getElementById('profile-name');
+                const emailEl = document.getElementById('profile-email');
+                
+                if (avatarEl) {
+                    avatarEl.textContent = user.full_name ? user.full_name.charAt(0).toUpperCase() : 'U';
+                }
+                if (nameEl) {
+                    nameEl.textContent = user.full_name || 'User';
+                }
+                if (emailEl) {
+                    emailEl.textContent = user.email || 'user@example.com';
+                }
+            }
+        }
+    </script>
+
+    <script src="chatbot.js"></script>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2024 Bus Ticket Management System. All rights reserved.</p>
+        </div>
+    </footer>
+</body>
+</html>
